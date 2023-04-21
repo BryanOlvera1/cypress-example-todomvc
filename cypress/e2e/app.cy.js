@@ -677,4 +677,66 @@ describe('TodoMVC - React', function () {
       })
     })
   })
+
+// Guided inquiry tests.
+
+// 1. Check to see that a completed item has a line through it.
+it('Displays completed items with a line through it', () => {
+  // Enter a new to-do item
+  cy.get('.new-todo').type('My Todo{enter}');
+  
+  // Mark the to-do item as completed
+  cy.get('.toggle').check();
+  
+  // Check that the to-do item has the completed class, which applies the the line through it 
+  cy.get('.todo-list li').should('have.class', 'completed');
+});
+
+
+
+// 2. Test that verifies the editing of a todo item:
+
+it('Edits an existing todo', () => {
+  cy.get('.new-todo').type('My Todo{enter}');
+  cy.get('.todo-list li')
+    .should('have.length.gt', 0)
+    .eq(0)
+    .dblclick();
+  cy.get('.todo-list li')
+    .should('have.class', 'editing')
+    .find('.edit')
+    .type('My Edited Todo{enter}');
+  cy.get('.todo-list li')
+    .should('not.have.class', 'editing')
+    .and('contain', 'My Edited Todo');
+});
+
+// 3. Test that verifies the deletion of all todo items:
+
+it('Deletes all todos', () => {
+  cy.get('.new-todo').type('My Todo{enter}');
+  cy.get('.todo-list li')
+    .should('have.length.gt', 0)
+    .each((todo) => {
+      cy.wrap(todo).find('.destroy').click({ force: true });
+    });
+  cy.get('.todo-list li')
+    .should('not.exist');
+});
+
+
+// 4.Verify that a user can delete a todo item that they entered:
+describe('Deletes a todo item', () => {
+  beforeEach(() => {
+    cy.visit('/');
+  });
+
+  it('successfully deletes a todo item', () => {
+    cy.get('.new-todo').type('My Todo{enter}');
+    cy.get('.todo-list li').should('have.length', 1);
+    cy.get('.destroy').click({ force: true });
+    cy.get('.todo-list li').should('not.exist');
+  });
+});
+
 })
